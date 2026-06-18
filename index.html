@@ -314,10 +314,35 @@
 
     <script>
         // Fallback Data bawaan jika dashboard belum membuat set data awal
+        // Fallback Data bawaan yang sudah disamakan dengan Admin
         const fallbackProduk = [
-            { id: 1, nama: "Indomie Goreng Double + Telur Kampung", harga: 19000, kategori: "makanan", prepTime: 5, foto: "https://images.unsplash.com/photo-1612927601601-6638404737ce?w=400", deskripsi: "Dua bungkus mi instan goreng dimasak kaldu bumbu disajikan dengan telur setengah matang." },
-            { id: 6, nama: "Kopi Susu Es Kental Manis Legit", harga: 11000, kategori: "minuman", prepTime: 2, foto: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400", deskripsi: "Seduhan biji kopi robusta pekat dipadukan dengan kental manis putih porsi es batu melimpah." },
-            { id: 11, nama: "Roti Bakar Cokelat Keju Kraft", harga: 14000, kategori: "snack", prepTime: 4, foto: "https://images.unsplash.com/photo-1584946914531-979450c56020?w=400", deskripsi: "Roti bakar lapis margarine isi meses cokelat pekat bertabur gunungan keju kraft gurih." }
+            { 
+                id: 1, 
+                nama: "Nasi Goreng / Mie Goreng", 
+                harga: 15000, 
+                kategori: "makanan", 
+                prepTime: 5, 
+                foto: "https://media.istockphoto.com/id/1474885753/id/foto/mie-sedap-goreng-adalah-mie-goreng-instan-indonesia-yang-populer-selain-indomie-goreng.jpg?s=170667a&w=0&k=20&c=fZIWUVmun8k-XiMw_VPVuXuZ9mMY28x31EQGybI34iI=", 
+                deskripsi: "Sajian nikmat menggugah selera, dimasak dadakan dengan bumbu rempah pilihan khas Warkop." 
+            },
+            { 
+                id: 2, 
+                nama: "Kopi Susu Gula Aren", 
+                harga: 12000, 
+                kategori: "minuman", 
+                prepTime: 2, 
+                foto: "https://media.suara.com/pictures/653x366/2025/07/15/69415-ilustrasi-es-kopi-susu-gula-aren.jpg", 
+                deskripsi: "Paduan pas antara espresso pekat, susu segar, dan manisnya legit gula aren asli." 
+            },
+            { 
+                id: 3, 
+                nama: "Bakwan Sayur Renyah", 
+                harga: 2500, 
+                kategori: "snack", 
+                prepTime: 4, 
+                foto: "https://asset-a.grid.id/crop/0x0:0x0/700x465/photo/2021/11/04/cara-membuat-gorengan-bakwan-gar-20211104073901.jpg", 
+                deskripsi: "Gorengan bakwan sayur yang renyah di luar dan lembut di dalam, nikmat disantap hangat." 
+            }
         ];
 
         let produkData = [];
@@ -342,14 +367,11 @@
             
             window.addEventListener('storage', function(e) {
                 if (e.key === 'warkop_status_update' && e.newValue) {
-                    // Ambil status angka murni sebelum karakter "_"
                     const statusAngka = parseInt(e.newValue.split('_')[0]);
                     applyRealtimeStatus(statusAngka);
                 }
-                // Jika data menu diperbarui di dashboard, sinkronkan di halaman pembeli secara instant
                 if (e.key === 'warkop_menus') {
                     loadDynamicMenus();
-                    // dapatkan kategori aktif saat ini dari tombol UI
                     const activeCat = document.getElementById('txt-kategori-title').innerText.replace('Kategori ', '').toLowerCase();
                     renderMenu(activeCat);
                 }
@@ -364,10 +386,11 @@
                     id: m.id,
                     nama: m.name,
                     harga: m.price,
-                    kategori: m.category.toLowerCase(),
+                    kategori: (m.category || '').toLowerCase(),
                     prepTime: m.category === 'Makanan' ? 5 : (m.category === 'Minuman' ? 2 : 4),
-                    foto: m.category === 'Makanan' ? "https://images.unsplash.com/photo-1612927601601-6638404737ce?w=400" : (m.category === 'Minuman' ? "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400" : "https://images.unsplash.com/photo-1584946914531-979450c56020?w=400"),
-                    deskripsi: `Menu ${m.name} segar higienis buatan resep rahasia dapur utama Warkop Uni.`
+                    // Sekarang sistem akan membaca foto dan deskripsi langsung dari data Admin
+                    foto: m.foto || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80",
+                    deskripsi: m.deskripsi || `Menu ${m.name} segar higienis buatan resep rahasia dapur utama Warkop Uni.`
                 }));
             } else {
                 produkData = fallbackProduk;

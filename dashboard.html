@@ -169,20 +169,16 @@
                             <h4 id="crud-form-title" class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700 pb-2"><i class="fa-solid fa-plus mr-1 text-amber-500"></i> Tambah Menu Baru</h4>
                             <input type="hidden" id="menu-id">
                             <div class="space-y-1">
-                                <label class="text-[10px] text-slate-400 font-bold uppercase">Nama Menu</label>
-                                <input type="text" id="menu-name" placeholder="Contoh: Es Teh Manis" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-slate-400 font-bold uppercase">Kategori</label>
-                                <select id="menu-category" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                                    <option value="Makanan">Makanan</option>
-                                    <option value="Minuman">Minuman</option>
-                                    <option value="Snack">Snack</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1">
                                 <label class="text-[10px] text-slate-400 font-bold uppercase">Harga (Rp)</label>
                                 <input type="number" id="menu-price" placeholder="Contoh: 5000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-slate-400 font-bold uppercase">Link URL Foto</label>
+                                <input type="text" id="menu-image" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-slate-400 font-bold uppercase">Deskripsi Menu</label>
+                                <textarea id="menu-desc" placeholder="Isi deskripsi singkat..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500 h-14"></textarea>
                             </div>
                             <div class="flex gap-2 pt-2">
                                 <button onclick="saveMenu()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-xl text-xs transition-all uppercase">Simpan</button>
@@ -257,10 +253,31 @@
             document.getElementById('main-dashboard').classList.remove('hidden');
         }
 
-        const defaultMenus = [
-            { id: 1, name: 'Mie Instan Goreng + Telur', category: 'Makanan', price: 15000 },
-            { id: 2, name: 'Kopi Susu Khas Uni', category: 'Minuman', price: 10000 },
-            { id: 3, name: 'Gorengan Bakwan Hot', category: 'Snack', price: 5000 }
+       const defaultMenus = [
+            { 
+                id: 1, 
+                name: 'Nasi Goreng / Mie Goreng', 
+                category: 'Makanan', 
+                price: 15000, 
+                foto: 'https://media.istockphoto.com/id/1474885753/id/foto/mie-sedap-goreng-adalah-mie-goreng-instan-indonesia-yang-populer-selain-indomie-goreng.jpg?s=170667a&w=0&k=20&c=fZIWUVmun8k-XiMw_VPVuXuZ9mMY28x31EQGybI34iI=', 
+                deskripsi: 'Sajian nikmat menggugah selera, dimasak dadakan dengan bumbu rempah pilihan khas Warkop.' 
+            },
+            { 
+                id: 2, 
+                name: 'Kopi Susu Gula Aren', 
+                category: 'Minuman', 
+                price: 12000, 
+                foto: 'https://media.suara.com/pictures/653x366/2025/07/15/69415-ilustrasi-es-kopi-susu-gula-aren.jpg', 
+                deskripsi: 'Paduan pas antara espresso pekat, susu segar, dan manisnya legit gula aren asli.' 
+            },
+            { 
+                id: 3, 
+                name: 'Bakwan Sayur Renyah', 
+                category: 'Snack', 
+                price: 2500, 
+                foto: 'https://asset-a.grid.id/crop/0x0:0x0/700x465/photo/2021/11/04/cara-membuat-gorengan-bakwan-gar-20211104073901.jpg', 
+                deskripsi: 'Gorengan bakwan sayur yang renyah di luar dan lembut di dalam, nikmat disantap hangat.' 
+            }
         ];
 
         window.onload = function() {
@@ -319,6 +336,8 @@
             const name = document.getElementById('menu-name').value.trim();
             const category = document.getElementById('menu-category').value;
             const price = parseInt(document.getElementById('menu-price').value);
+            const foto = document.getElementById('menu-image').value.trim();
+            const deskripsi = document.getElementById('menu-desc').value.trim();
 
             if (!name || isNaN(price)) {
                 alert('Mohon isi nama menu dan harga dengan benar!');
@@ -329,11 +348,11 @@
 
             if (id) {
                 menus = menus.map(function(m) {
-                    return m.id === parseInt(id) ? { id: m.id, name: name, category: category, price: price } : m;
+                    return m.id === parseInt(id) ? { id: m.id, name: name, category: category, price: price, foto: foto, deskripsi: deskripsi } : m;
                 });
             } else {
                 const newId = menus.length > 0 ? Math.max(...menus.map(function(m) { return m.id; })) + 1 : 1;
-                menus.push({ id: newId, name: name, category: category, price: price });
+                menus.push({ id: newId, name: name, category: category, price: price, foto: foto, deskripsi: deskripsi });
             }
 
             localStorage.setItem('warkop_menus', JSON.stringify(menus));
@@ -349,18 +368,11 @@
             document.getElementById('menu-name').value = menu.name;
             document.getElementById('menu-category').value = menu.category;
             document.getElementById('menu-price').value = menu.price;
+            document.getElementById('menu-image').value = menu.foto || '';
+            document.getElementById('menu-desc').value = menu.deskripsi || '';
 
             document.getElementById('crud-form-title').innerHTML = '<i class="fa-solid fa-pen-to-square mr-1 text-amber-500"></i> Ubah Data Menu';
             document.getElementById('btn-cancel-edit').classList.remove('hidden');
-        }
-
-        function deleteMenu(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus menu ini?')) {
-                let menus = getMenus().filter(function(m) { return m.id !== id; });
-                localStorage.setItem('warkop_menus', JSON.stringify(menus));
-                renderMenuTable();
-                resetMenuForm();
-            }
         }
 
         function resetMenuForm() {
@@ -368,6 +380,8 @@
             document.getElementById('menu-name').value = '';
             document.getElementById('menu-price').value = '';
             document.getElementById('menu-category').selectedIndex = 0;
+            document.getElementById('menu-image').value = '';
+            document.getElementById('menu-desc').value = '';
 
             document.getElementById('crud-form-title').innerHTML = '<i class="fa-solid fa-plus mr-1 text-amber-500"></i> Tambah Menu Baru';
             document.getElementById('btn-cancel-edit').classList.add('hidden');
