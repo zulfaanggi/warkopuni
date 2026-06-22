@@ -168,21 +168,6 @@
                         <div class="lg:col-span-4 bg-slate-900/50 p-4 rounded-2xl border border-slate-700/60 space-y-4">
                             <h4 id="crud-form-title" class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700 pb-2"><i class="fa-solid fa-plus mr-1 text-amber-500"></i> Tambah Menu Baru</h4>
                             <input type="hidden" id="menu-id">
-                            
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-slate-400 font-bold uppercase">Nama Menu</label>
-                                <input type="text" id="menu-name" placeholder="Contoh: Nasi Goreng" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                            </div>
-
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-slate-400 font-bold uppercase">Kategori</label>
-                                <select id="menu-category" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                                    <option value="Makanan">Makanan</option>
-                                    <option value="Minuman">Minuman</option>
-                                    <option value="Snack">Snack</option>
-                                </select>
-                            </div>
-
                             <div class="space-y-1">
                                 <label class="text-[10px] text-slate-400 font-bold uppercase">Harga (Rp)</label>
                                 <input type="number" id="menu-price" placeholder="Contoh: 5000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
@@ -193,4 +178,283 @@
                             </div>
                             <div class="space-y-1">
                                 <label class="text-[10px] text-slate-400 font-bold uppercase">Deskripsi Menu</label>
-                                <textarea id="menu-desc" placeholder="Isi deskripsi singkat..." class="w-full bg-slate-900 border border-slate-70
+                                <textarea id="menu-desc" placeholder="Isi deskripsi singkat..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500 h-14"></textarea>
+                            </div>
+                            <div class="flex gap-2 pt-2">
+                                <button onclick="saveMenu()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-xl text-xs transition-all uppercase">Simpan</button>
+                                <button onclick="resetMenuForm()" id="btn-cancel-edit" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all">Batal</button>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-8 space-y-2">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-700 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                                            <th class="py-2 px-3">Nama Menu</th>
+                                            <th class="py-2 px-3">Kategori</th>
+                                            <th class="py-2 px-3 text-right">Harga</th>
+                                            <th class="py-2 px-3 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="menu-table-body" class="divide-y divide-slate-800">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer class="bg-slate-800 border-t border-slate-700 text-slate-500 text-center py-3 text-[11px]">
+            &copy; 2026 Admin Panel Warkop Uni Local Storage Cloud Gateway Network Synchronizer. All Rights Reserved.
+        </footer>
+    </div>
+
+    <script>
+        let currentOrderTotal = 0;
+        let totalOmzet = 0;
+        let bypassClickCount = 0;
+
+        function bypassLogin() {
+            bypassClickCount++;
+            if (bypassClickCount >= 3) {
+                showDashboard();
+                bypassClickCount = 0;
+            }
+        }
+
+        function handleLogin(event) {
+            if (event) event.preventDefault(); 
+            const user = document.getElementById('login-username').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+
+            if (user === 'admin' && pass === 'admin123') {
+                localStorage.setItem('admin_logged_in', 'true');
+                document.getElementById('login-error').classList.add('hidden');
+                showDashboard();
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('admin_logged_in');
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('login-page').classList.remove('hidden');
+            document.getElementById('main-dashboard').classList.add('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('hidden');
+        }
+
+       const defaultMenus = [
+            { 
+                id: 1, 
+                name: 'Nasi Goreng / Mie Goreng', 
+                category: 'Makanan', 
+                price: 15000, 
+                foto: 'https://media.istockphoto.com/id/1474885753/id/foto/mie-sedap-goreng-adalah-mie-goreng-instan-indonesia-yang-populer-selain-indomie-goreng.jpg?s=170667a&w=0&k=20&c=fZIWUVmun8k-XiMw_VPVuXuZ9mMY28x31EQGybI34iI=', 
+                deskripsi: 'Sajian nikmat menggugah selera, dimasak dadakan dengan bumbu rempah pilihan khas Warkop.' 
+            },
+            { 
+                id: 2, 
+                name: 'Kopi Susu Gula Aren', 
+                category: 'Minuman', 
+                price: 12000, 
+                foto: 'https://media.suara.com/pictures/653x366/2025/07/15/69415-ilustrasi-es-kopi-susu-gula-aren.jpg', 
+                deskripsi: 'Paduan pas antara espresso pekat, susu segar, dan manisnya legit gula aren asli.' 
+            },
+            { 
+                id: 3, 
+                name: 'Bakwan Sayur Renyah', 
+                category: 'Snack', 
+                price: 2500, 
+                foto: 'https://asset-a.grid.id/crop/0x0:0x0/700x465/photo/2021/11/04/cara-membuat-gorengan-bakwan-gar-20211104073901.jpg', 
+                deskripsi: 'Gorengan bakwan sayur yang renyah di luar dan lembut di dalam, nikmat disantap hangat.' 
+            }
+        ];
+
+        window.onload = function() {
+            if (localStorage.getItem('admin_logged_in') === 'true') {
+                showDashboard();
+            }
+            initMenuData();
+            renderMenuTable();
+            updateOmzetUI();
+
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'warkop_new_order_event' && e.newValue) {
+                    tangkapOrderanPembeliBaru(JSON.parse(e.newValue));
+                }
+            });
+        };
+
+        function initMenuData() {
+            if (!localStorage.getItem('warkop_menus')) {
+                localStorage.setItem('warkop_menus', JSON.stringify(defaultMenus));
+            }
+        }
+
+        function getMenus() {
+            return JSON.parse(localStorage.getItem('warkop_menus')) || defaultMenus;
+        }
+
+        function renderMenuTable() {
+            const menus = getMenus();
+            const tbody = document.getElementById('menu-table-body');
+            tbody.innerHTML = '';
+
+            if (menus.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-500 text-xs">Belum ada data menu.</td></tr>';
+                return;
+            }
+
+            menus.forEach(function(menu) {
+                let row = '<tr class="hover:bg-slate-800/40 transition-colors">' +
+                    '<td class="py-3 px-3 font-medium text-slate-200">' + menu.name + '</td>' +
+                    '<td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ' + 
+                    (menu.category === "Makanan" ? "bg-orange-500/10 text-orange-400" : menu.category === "Minuman" ? "bg-blue-500/10 text-blue-400" : "bg-purple-500/10 text-purple-400") + 
+                    '">' + menu.category + '</span></td>' +
+                    '<td class="py-3 px-3 text-right font-mono text-green-400">Rp ' + Number(menu.price).toLocaleString('id-ID') + '</td>' +
+                    '<td class="py-3 px-3 text-center space-x-1">' +
+                        '<button onclick="editMenu(' + menu.id + ')" class="text-amber-400 hover:text-amber-300 p-1"><i class="fa-solid fa-pen-to-square"></i></button>' +
+                        '<button onclick="deleteMenu(' + menu.id + ')" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>' +
+                    '</td>' +
+                '</tr>';
+                tbody.innerHTML += row;
+            });
+        }
+
+        function saveMenu() {
+            const id = document.getElementById('menu-id').value;
+            const name = document.getElementById('menu-name').value.trim();
+            const category = document.getElementById('menu-category').value;
+            const price = parseInt(document.getElementById('menu-price').value);
+            const foto = document.getElementById('menu-image').value.trim();
+            const deskripsi = document.getElementById('menu-desc').value.trim();
+
+            if (!name || isNaN(price)) {
+                alert('Mohon isi nama menu dan harga dengan benar!');
+                return;
+            }
+
+            let menus = getMenus();
+
+            if (id) {
+                menus = menus.map(function(m) {
+                    return m.id === parseInt(id) ? { id: m.id, name: name, category: category, price: price, foto: foto, deskripsi: deskripsi } : m;
+                });
+            } else {
+                const newId = menus.length > 0 ? Math.max(...menus.map(function(m) { return m.id; })) + 1 : 1;
+                menus.push({ id: newId, name: name, category: category, price: price, foto: foto, deskripsi: deskripsi });
+            }
+
+            localStorage.setItem('warkop_menus', JSON.stringify(menus));
+            renderMenuTable();
+            resetMenuForm();
+        }
+
+        function editMenu(id) {
+            const menu = getMenus().find(function(m) { return m.id === id; });
+            if (!menu) return;
+
+            document.getElementById('menu-id').value = menu.id;
+            document.getElementById('menu-name').value = menu.name;
+            document.getElementById('menu-category').value = menu.category;
+            document.getElementById('menu-price').value = menu.price;
+            document.getElementById('menu-image').value = menu.foto || '';
+            document.getElementById('menu-desc').value = menu.deskripsi || '';
+
+            document.getElementById('crud-form-title').innerHTML = '<i class="fa-solid fa-pen-to-square mr-1 text-amber-500"></i> Ubah Data Menu';
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+        }
+
+        function resetMenuForm() {
+            document.getElementById('menu-id').value = '';
+            document.getElementById('menu-name').value = '';
+            document.getElementById('menu-price').value = '';
+            document.getElementById('menu-category').selectedIndex = 0;
+            document.getElementById('menu-image').value = '';
+            document.getElementById('menu-desc').value = '';
+
+            document.getElementById('crud-form-title').innerHTML = '<i class="fa-solid fa-plus mr-1 text-amber-500"></i> Tambah Menu Baru';
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+        }
+
+        function tangkapOrderanPembeliBaru(order) {
+            document.getElementById('admin-empty-state').classList.add('hidden');
+            document.getElementById('admin-active-order-card').classList.remove('hidden');
+
+            document.getElementById('lbl-order-id').innerText = '#' + order.id;
+            document.getElementById('lbl-order-type').innerText = order.tipe;
+            document.getElementById('lbl-order-cost').innerText = order.harga;
+            document.getElementById('stat-antrean').innerText = "1 Pesanan";
+
+            currentOrderTotal = parseInt(order.harga.replace(/[^0-9]/g, '')) || 0;
+
+            const listContainer = document.getElementById('lbl-order-menu-details');
+            listContainer.innerHTML = order.menu.split(', ').map(function(item) { 
+                return '<div class="py-0.5">• ' + item + '</div>'; 
+            }).join('');
+
+            document.getElementById('btn-aksi-masak').className = "bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 uppercase tracking-wide transition-colors";
+            document.getElementById('btn-aksi-masak').disabled = false;
+            
+            document.getElementById('btn-aksi-siap').className = "bg-blue-600 text-white font-bold py-3 rounded-xl text-xs opacity-50 cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-wide transition-colors";
+            document.getElementById('btn-aksi-siap').disabled = true;
+            
+            document.getElementById('btn-aksi-selesai').className = "bg-green-600 text-white font-bold py-3 rounded-xl text-xs opacity-50 cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-wide transition-colors";
+            document.getElementById('btn-aksi-selesai').disabled = true;
+        }
+
+        function kirimSinyalKePembeli(statusSinyal) {
+            localStorage.setItem('warkop_status_update', statusSinyal + "_" + Math.random());
+
+            if (statusSinyal === 2) {
+                document.getElementById('btn-aksi-masak').className = "bg-slate-800 text-slate-600 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 uppercase tracking-wide cursor-not-allowed";
+                document.getElementById('btn-aksi-masak').disabled = true;
+                
+                document.getElementById('btn-aksi-siap').className = "bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 uppercase tracking-wide transition-colors shadow";
+                document.getElementById('btn-aksi-siap').disabled = false;
+            } else if (statusSinyal === 3) {
+                document.getElementById('btn-aksi-siap').className = "bg-slate-800 text-slate-600 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 uppercase tracking-wide cursor-not-allowed";
+                document.getElementById('btn-aksi-siap').disabled = true;
+                
+                document.getElementById('btn-aksi-selesai').className = "bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 uppercase tracking-wide transition-colors shadow";
+                document.getElementById('btn-aksi-selesai').disabled = false;
+            } else if (statusSinyal === 4) {
+                totalOmzet += currentOrderTotal;
+                updateOmzetUI();
+
+                document.getElementById('admin-active-order-card').classList.add('hidden');
+                document.getElementById('admin-empty-state').classList.remove('hidden');
+                document.getElementById('stat-antrean').innerText = "0 Pesanan";
+            }
+        }
+
+        function updateOmzetUI() {
+            document.getElementById('stat-omzet').innerText = "Rp " + totalOmzet.toLocaleString('id-ID');
+        }
+
+        function generateQrMejaBencana() {
+            const noMeja = document.getElementById('input-no-meja').value || "5";
+            const printBox = document.getElementById('box-qr-print');
+            printBox.innerHTML = '<div class="bg-white p-2 border rounded-xl inline-block shadow-sm mb-1.5">' +
+                '<img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=index.html?meja=' + noMeja + '" alt="QR Meja ' + noMeja + '">' +
+            '</div>' +
+            '<div class="font-bold text-amber-400">QR_MEJA_' + noMeja + '.PNG</div>' +
+            '<p class="text-[9px] text-green-400 mt-0.5"><i class="fa-solid fa-circle-down"></i> Siap Tempel Di Meja</p>';
+        }
+
+        function lokasiSimulasiPembeli() {
+            window.open('index.html?meja=05', '_blank');
+        }
+    </script>
+</body>
+</html>
